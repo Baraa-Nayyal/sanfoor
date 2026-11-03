@@ -473,7 +473,26 @@ def main():
 
     print("Shaghoof Sanfoor Bot is running...")
 
-    application.run_polling()
+    BASE_URL = os.getenv("BASE_URL")
+    WEBHOOK_PATH = os.getenv("WEBHOOK_PATH")
+
+    if not BASE_URL or not WEBHOOK_PATH:
+        application.run_polling()
+    else:
+        PORT = int(os.getenv("PORT", 8443))
+        SECRET_TOKEN = os.getenv("SECRET_TOKEN")
+
+        # Safely combine them to ensure there is exactly one slash between them
+        full_webhook_url = f"{BASE_URL.rstrip('/')}/{WEBHOOK_PATH.lstrip('/')}"
+
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            secret_token=SECRET_TOKEN,
+            webhook_url=full_webhook_url,
+            drop_pending_updates=True,
+            url_path=WEBHOOK_PATH,
+        )
 
 
 if __name__ == "__main__":
